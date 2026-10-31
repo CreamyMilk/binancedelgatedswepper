@@ -46,11 +46,3 @@ For this to execute, the attacker already held the raw private key, or unconstra
 *Code is law until the stablecoin admin keys log in.*
 
 Binance got bailed out by the very centralized choke points the cypherpunks warned you about.
-
-## Takeaways
-
-- Hardware wallets leak your home address.
-- Centralized exchanges leak the keys to the kingdom.
-- **Self-custody on native, non-delegated chains remains the only honest baseline.**
-
-At least you know what to avoid.
