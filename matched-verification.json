@@ -1,0 +1,17 @@
+{
+  "compiler": "0.8.28+commit.7893614a",
+  "viaIR": true,
+  "optimizer": {
+    "enabled": true,
+    "runs": 200
+  },
+  "evmVersion": "cancun",
+  "onchainRuntimeBytes": 1674,
+  "rebuiltRuntimeBytes": 1674,
+  "executableBytes": 1621,
+  "metadataTrailerBytes": 53,
+  "exactExecutableMatch": true,
+  "onchainExecutableKeccak256": "0x9694e17b9d658f7b85c87335fee4326b80f5223b7754581dcb7a7e6b01ae9416",
+  "rebuiltExecutableKeccak256": "0x9694e17b9d658f7b85c87335fee4326b80f5223b7754581dcb7a7e6b01ae9416",
+  "buildCommand": "solc-0.8.28 --standard-json < matched-build-input.json"
+}
