@@ -1,0 +1,25 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "Sweeper.sol": {
+      "content": "// SPDX-License-Identifier: UNLICENSED\npragma solidity 0.8.28;\n/* Reconstructed source, not recovered original source.\n * Compiles byte-for-byte to the observed executable runtime of\n * 0x63e842B054Bd624a465454D533C33F573e9c6fAe at Ethereum block 26300770.\n * Build: solc 0.8.28, viaIR=true, optimizer enabled/runs=200, evmVersion=cancun.\n * Strip CBOR metadata using the final two-byte big-endian length, plus those\n * two bytes: executable runtime = 1621 bytes; original metadata trailer = 53.\n * All function, error, and event selector preimages have been identified.\n * Function names confirmed by selector hashing; database matches alone do not\n * prove original source spelling. Internal names and contract name are inferred.\n */\n\ncontract DelegatedSweeper {\n    address public constant authorizedCaller = 0x7C8601d4645b93cea45F71e118A729332e6B5CA0;\n    error NotAuthorized();\n    error TokenTransferFailed();\n    error ETHTransferFailed();\n    error ExecuteCallFailed(address account, bytes reason);\n    error NoCodeAtExecutor(address executor);\n    event SweepItemFailed(address indexed token, uint8 reason);\n    modifier onlyAuthorized() {\n        if (msg.sender != authorizedCaller) revert NotAuthorized();\n        _;\n    }\n    receive() external payable {}\n\n    function withdrawToken(address token, address payable to, uint256 amount) external onlyAuthorized {\n        _withdrawToken(token, to, amount);\n    }\n\n    function withdrawETH(address to, uint256 amount) external onlyAuthorized {\n        _withdrawETH(to, amount);\n    }\n\n    function _withdrawToken(address token, address payable to, uint256 amount) internal {\n        if (amount == 0) return;\n        (bool ok,) = token.call(abi.encodeWithSignature(\"transfer(address,uint256)\", to, amount));\n        if (!ok) revert TokenTransferFailed();\n    }\n\n    function _withdrawETH(address to, uint256 amount) internal {\n        if (amount == 0) return;\n        (bool ok,) = payable(to).call{value: amount}(\"\");\n        if (!ok) revert ETHTransferFailed();\n    }\n\n    function sweep(address payable to, address[] calldata tokens) external onlyAuthorized {\n        for (uint256 i = 0; i < tokens.length; i++) {\n            address token = tokens[i];\n            if (token == address(0)) {\n                uint256 balance = address(this).balance;\n                if (balance > 1 ether) {\n                    (bool ok,) = payable(to).call{value: balance - 1 ether}(\"\");\n                    if (!ok) emit SweepItemFailed(token, 3);\n                }\n            } else {\n                (bool ok, bytes memory ret) =\n                    token.staticcall(abi.encodeWithSignature(\"balanceOf(address)\", address(this)));\n                if (!ok || ret.length < 32) {\n                    emit SweepItemFailed(token, 1);\n                    continue;\n                }\n                uint256 balance = abi.decode(ret, (uint256));\n                if (balance > 0) {\n                    (bool success,) =\n                        token.call(abi.encodeWithSignature(\"transfer(address,uint256)\", address(to), balance));\n                    if (!success) emit SweepItemFailed(token, 2);\n                }\n            }\n        }\n    }\n\n    function callExecute(address account, address to, uint256 value, bytes calldata data)\n        external\n        payable\n        onlyAuthorized\n        returns (bytes memory)\n    {\n        if (account.code.length == 0) {\n            revert NoCodeAtExecutor(account);\n        }\n        (bool ok, bytes memory result) =\n            account.call{value: msg.value}(abi.encodeWithSelector(bytes4(0xb61d27f6), to, value, data));\n        if (!ok) revert ExecuteCallFailed(account, result);\n        return result;\n    }\n}\n"
+    }
+  },
+  "settings": {
+    "viaIR": true,
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "evmVersion": "cancun",
+    "outputSelection": {
+      "*": {
+        "*": [
+          "evm.deployedBytecode.object",
+          "abi",
+          "irOptimized"
+        ]
+      }
+    }
+  }
+}
